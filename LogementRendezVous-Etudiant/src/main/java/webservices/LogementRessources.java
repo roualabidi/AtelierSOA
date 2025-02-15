@@ -14,12 +14,18 @@ public class LogementRessources {
     @GET
     @Path("/getAll")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response  getAll(){
-        return Response.
-                status(200).
-                entity(help.getLogements()).
-                build();
+    public Response getAll() {
+        return Response
+                .status(200)
+                .header("Access-Control-Allow-Origin", "*") // Permet tous les domaines
+                .header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS") // Permet certaines méthodes HTTP
+                .header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization") // Permet certains en-têtes
+                .encoding("UTF-8")
+                .entity(help.getLogements())
+                .build();
     }
+
+
 
 
 }

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Découvrez Nos Logements</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #c54e4e;
+            --secondary-color: #fffdfd;
+            --background-color: #f4f6f9;
+            --card-background: #ffffff;
+            --text-color: #333333;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 60px 0;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 6px var(--shadow-color);
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin: 0;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            margin-top: 10px;
+            opacity: 0.8;
+        }
+
+        #logements {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
+        }
+
+        .card {
+            background: var(--card-background);
+            border-radius: 20px;
+            box-shadow: 0 10px 20px var(--shadow-color);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer; /* This makes it clear the card is interactive */
+        }
+
+        .card:hover {
+            transform: translateY(-10px) scale(1.02); /* Added scale for more noticeable effect */
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); /* Increased shadow on hover */
+        }
+
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-body {
+            padding: 25px;
+        }
+
+        .card p {
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .card i {
+            margin-right: 10px;
+            color: var(--secondary-color);
+        }
+
+        .price {
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            #logements {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-top: 50px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Découvrez Nos Logements</h1>
+    <p class="subtitle">Des options de qualité pour tous les goûts et budgets</p>
+</header>
+
+<div class="container">
+    <div id="logements">
+        <div class="loading">Chargement des logements...</div>
+    </div>
+</div>
+
+<script>
+    const apiUrl = "http://localhost:8088/LogementRendezVous_Etudiant_war_exploded/api/logement/getAll";
+
+    async function getLogements() {
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                mode: 'cors'
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP : ${response.status}`);
+            }
+
+            const logements = await response.json();
+            const container = document.getElementById('logements');
+            container.innerHTML = '';
+
+            logements.forEach((logement, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.style.animationDelay = `${index * 0.1}s`;
+                card.innerHTML = `
+<div class="card-header">
+<span>${logement.type}</span>
+<i class="fas fa-home"></i>
+</div>
+<div class="card-body">
+<p><i class="fas fa-map-marker-alt"></i> ${logement.adresse}</p>
+<p><i class="fas fa-city"></i> ${logement.delegation}, ${logement.gouvernorat}</p>
+<p><i class="fas fa-info-circle"></i> ${logement.description}</p>
+<div class="price">${logement.prix} € / mois</div>
+</div>
+                    `;
+                container.appendChild(card);
+            });
+        } catch (error) {
+            console.error('Erreur lors de la récupération des logements :', error);
+            document.getElementById('logements').innerHTML = '<p>Problème de connexion avec le serveur. Veuillez réessayer plus tard.</p>';
+        }
+    }
+
+    window.onload = getLogements;
+</script>
+</body>
+</html>
